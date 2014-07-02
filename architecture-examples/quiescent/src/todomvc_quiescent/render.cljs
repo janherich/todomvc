@@ -20,7 +20,7 @@
                       (fn [evt]
                         (when (enter-key? evt)
                           (let [v (.-value (.-target evt))]
-                            (am/go (a/>! submit-ch v))
+                            (a/put! submit-ch v)
                             (set! (.-value (.-target evt)) ""))))
                       :autoFocus true})))
 
@@ -50,8 +50,8 @@
               (Filters (:filter app))
               (when (< 0 completed)
                 (d/button {:id "clear-completed"
-                           :onClick #(am/go (a/>! (:clear-completed channels)
-                                                  :clear))}
+                           :onClick #(a/put! (:clear-completed channels)
+                                             :clear)}
                           (str "Clear completed (" completed ")"))))))
 
 (defn class-name
@@ -74,31 +74,28 @@
     (d/li {:key           (:id item)
            :className     (class-name #{(when done "completed")
                                         (when (:editing item) "editing")})
-           :onDoubleClick (fn [evt]
-                            (am/go (a/>! (:start-edit channels)
-                                         (:id item))))}
+           :onDoubleClick #(a/put! (:start-edit channels)
+                                   (:id item))}
           (d/div {:className "view"}
                  (d/input {:className "toggle"
                            :type      "checkbox"
                            :checked   done
                            :onClick
-                           (fn [_]
-                             (am/go (a/>! (:toggle channels)
-                                          (:id item))))})
+                           #(a/put! (:toggle channels)
+                                    (:id item))})
                  (d/label {} (:text item))
                  (d/button {:className "destroy"
                             :onClick
-                            (fn [_]
-                              (am/go (a/>! (:destroy channels)
-                                           (:id item))))}))
+                            #(a/put! (:destroy channels)
+                                     (:id item))}))
           (q/on-render (d/input {:className    "edit"
                                  :defaultValue (:text item)
                                  :onKeyDown    (fn [evt] (when (enter-key? evt)
                                                            (.blur (.-target evt))))
                                  :onBlur       (fn [evt]
                                                  (let [v (.-value (.-target evt))]
-                                                   (am/go (a/>! (:complete-edit channels)
-                                                                [(:id item) v]))))})
+                                                   (a/put! (:complete-edit channels)
+                                                           [(:id item) v])))})
                        (fn [node]
                          (when (:editing item) (.focus node)))))))
 (q/defcomponent TodoList
@@ -131,7 +128,6 @@
     [app]
     (when (compare-and-set! render-pending? false true)
       (.requestAnimationFrame js/window
-                              (fn []
-                                (q/render (App @(:state app) (:channels app))
-                                          (.getElementById js/document "todoapp"))
-                                (reset! render-pending? false))))))
+                              #(do (q/render (App @(:state app) (:channels app))
+                                             (.getElementById js/document "todoapp"))
+                                   (reset! render-pending? false))))))
