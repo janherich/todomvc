@@ -69,11 +69,10 @@
 
 (q/defcomponent Item
   "An item in the todo list"
-  [[item filter] channels]
+  [item channels]
   (let [done (boolean (:completed item))]
     (d/li {:key           (:id item)
            :className     (class-name #{(when done "completed")
-                                        (when (hidden? item filter) "hidden")
                                         (when (:editing item) "editing")})
            :onDoubleClick (fn [evt]
                             (am/go (a/>! (:start-edit channels)
@@ -105,8 +104,9 @@
 (q/defcomponent TodoList
   "The primary todo list"
   [app channels]
-  (apply d/ul {:id "todo-list"} (map #(Item [% (:filter app)] channels)
-                                     (:items app))))
+  (apply d/ul {:id "todo-list"} (->> (:items app)
+                                     (filter #(not (hidden? % (:filter app))))
+                                     (map #(Item % channels)))))
 
 (q/defcomponent App
   "The root of the application"
