@@ -47,6 +47,15 @@
                         item))
                     items))))
 
+(defn toggle-all
+  "Given an application state, toggle the completion status of all
+  items."
+  [state]
+  (let [all-checked (every? :completed (:items state))]
+    (update-in state [:items]
+               (fn [items]
+                 (map #(assoc % :completed (not all-checked)) items)))))
+
 (defn clear-completed
   "Given an application state, remove all completed items."
   [state]

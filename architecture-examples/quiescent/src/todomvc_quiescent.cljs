@@ -27,6 +27,7 @@
               :submit (a/chan)
               :destroy (a/chan)
               :toggle (a/chan)
+              :toggle-all (a/chan)
               :clear-completed (a/chan)
               :start-edit (a/chan)
               :complete-edit (a/chan)}
@@ -34,6 +35,7 @@
                :submit data/add
                :destroy data/destroy
                :toggle data/toggle
+               :toggle-all data/toggle-all
                :clear-completed data/clear-completed
                :start-edit data/start-edit
                :complete-edit data/complete-edit}})
@@ -59,5 +61,3 @@
     (init-history app)
     (init-updates app)
     (render/request-render app)))
-
-

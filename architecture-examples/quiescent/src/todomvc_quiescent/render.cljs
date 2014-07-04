@@ -113,7 +113,9 @@
          (d/section {:id "main"}
                     (d/input {:id "toggle-all"
                               :type "checkbox"
-                              :checked true})
+                              :checked (and (seq (:items app))
+                                            (every? :completed (:items app)))
+                              :onClick #(a/put! (:toggle-all channels) :toggle-all)})
                     (d/label {:htmlFor "toggle-all"}
                              "Mark all as complete")
                     (TodoList app channels))
