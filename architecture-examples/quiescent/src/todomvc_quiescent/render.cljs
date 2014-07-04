@@ -108,19 +108,20 @@
 (q/defcomponent App
   "The root of the application"
   [app channels]
-  (d/div {}
-         (Header nil (:submit channels))
-         (d/section {:id "main"}
-                    (d/input {:id "toggle-all"
-                              :type "checkbox"
-                              :checked (and (seq (:items app))
-                                            (every? :completed (:items app)))
-                              :onClick #(a/put! (:toggle-all channels) :toggle-all)})
-                    (d/label {:htmlFor "toggle-all"}
-                             "Mark all as complete")
-                    (TodoList app channels))
-         (when (seq (:items app))
-           (Footer app channels))))
+  (let [some-items? (> (count (:items app)) 0)]
+    (d/div {}
+           (Header nil (:submit channels))
+           (d/section {:id "main"}
+                      (d/input {:id "toggle-all"
+                                :type "checkbox"
+                                :checked (and some-items?
+                                              (every? :completed (:items app)))
+                                :onClick #(a/put! (:toggle-all channels) :toggle-all)})
+                      (d/label {:htmlFor "toggle-all"}
+                               "Mark all as complete")
+                      (TodoList app channels))
+           (when some-items?
+             (Footer app channels)))))
 
 ;; Here we use an atom to tell us if we already have a render queued
 ;; up; if so, requesting another render is a no-op
